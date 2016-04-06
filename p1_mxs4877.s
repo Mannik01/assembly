@@ -4,18 +4,18 @@
         .func main
 
 main:
-	BL  _scanf
-	MOV R10, R0
-	BL  _getchar
-	MOV R8, R0
-	BL  _scanf
-	MOV R9, R0
-	MOV R1, R10
-	MOV R2, R8
-	MOV R3, R9
-	BL  _compare
-	MOV R5, R0
-	BL  _printf
+	BL  _scanf		@ branch to scanf procedure with return
+	MOV R10, R0		@ move return value to R10
+	BL  _getchar		@ get character from user
+	MOV R8, R0		@ move return value to R8
+	BL  _scanf		@ branch to scanf procedure with return
+	MOV R9, R0		@ move return value to R9	
+	MOV R1, R10		@ move R10 content to R1
+	MOV R2, R8		@ move R8 content to R2 
+	MOV R3, R9		@ move R9 content to R3 
+	BL  _compare		@ branch to compare procedure
+	MOV R5, R0		@ move R0 content to R5
+	BL  _printf		@ branch to printf procedure
 	B   main
 
 _scanf:
@@ -39,34 +39,34 @@ _getchar:
     	MOV PC, LR              @ return
 
 _compare:
-	MOV  R4, LR
-	CMP  R2, #'+'
-	BLEQ _sum
-	CMP  R2, #'-'
-        BLEQ _dif
-	CMP  R2, #'*'
-        BLEQ _mult
-	CMP  R2, #'M'
-        BLEQ _max
-	MOV  PC, R4
+	MOV  R4, LR		@ store LR since printf call overwrites
+	CMP  R2, #'+'		@ compare against "+" char
+	BLEQ _sum		@ branch and link if equal to "+"
+	CMP  R2, #'-'		@ compare against "-" char
+        BLEQ _dif		@ branch and link if equal to "-"
+	CMP  R2, #'*'		@ compare against "*" char
+        BLEQ _mult		@ branch and link if equal to "*"
+	CMP  R2, #'M'		@ compare against "M" char
+        BLEQ _max		@ branch and link if equal to "M"
+	MOV  PC, R4		@ return
 
 _sum:
-	ADD R0, R1, R3
-	MOV PC, LR
+	ADD R0, R1, R3 		@ add R1 and R3 and store in R0
+	MOV PC, LR		@ return 
 
 _dif:
-        SUB R0, R1, R3
-        MOV PC, LR
+        SUB R0, R1, R3		@ sub R1 and R3 and store in R0
+        MOV PC, LR		@ return
 
 _mult:
-        MUL R0, R1, R3
-        MOV PC, LR
+        MUL R0, R1, R3		@ multiply R1 and R3 and store in R0
+        MOV PC, LR		@ return
 
 _max:
-        CMP   R1, R3
-        MOVGT R0, R1
-	MOVLT R0, R3
-        MOV PC, LR
+        CMP   R1, R3		@ compare R1 and R3
+        MOVGT R0, R1		@ move R1 to R0 if greater than
+	MOVLT R0, R3		@ move R3 to R0 if less than
+        MOV PC, LR		@ return
 
 _printf:
 	MOV R4, LR              @ store LR since printf call overwrites
