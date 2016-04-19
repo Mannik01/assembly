@@ -5,11 +5,11 @@
 main:
     BL  _scanf              @ branch to scan procedure with return
     MOV R4, R0              @ store n in R4
-    MOV R1, R0              @ pass n to count partition    
+    MOV R1, R0              @ pass n to partition partition    
     BL  _scanf              @ branch to scan procedure with return
     MOV R5, R0              @ store m in R5
-    MOV R2, R0              @ pass m to factorial procedure    
-    BL  _partition          @ branch to factorial procedure with return
+    MOV R2, R0              @ pass m to partition procedure    
+    BL  _partition          @ branch to partition procedure with return
     MOV R2, R4              @ pass n to printf procedure
     MOV R3, R5              @ pass n to printf procedure
     MOV R1, R0              @ pass result to printf procedure
@@ -17,25 +17,11 @@ main:
     B   main                @ branch to exit procedure with no return
 
 
-_prompt:
-    PUSH {R1}               @ backup register value
-    PUSH {R2}               @ backup register value
-    PUSH {R7}               @ backup register value
-    MOV R7, #4              @ write syscall, 4
-    MOV R0, #1              @ output stream to monitor, 1
-    MOV R2, #26             @ print string length
-    LDR R1, =prompt_str     @ string at label prompt_str:
-    SWI 0                   @ execute syscall
-    POP {R7}                @ restore register value
-    POP {R2}                @ restore register value
-    POP {R1}                @ restore register value
-    MOV PC, LR              @ return
-
 _printf:
     PUSH {LR}               @ store the return address
     LDR R0, =printf_str     @ R0 contains formatted string address
-    @MOV R1, R1              @ R1 contains printf argument 1 (redundant line)
-    @MOV R2, R2              @ R2 contains printf argument 2 (redundant line)
+    @MOV R1, R1             @ R1 contains printf argument 1 (redundant line)
+    @MOV R2, R2             @ R2 contains printf argument 2 (redundant line)
     BL printf               @ call printf
     POP {PC}                @ restore the stack pointer and return
 
@@ -51,10 +37,10 @@ _scanf:
     POP {R1}                @ restore register value
     POP {PC}                @ restore the stack pointer and return
 
-_count_partition:
+_partition:
     PUSH {LR}               @ store the return address
 
-    CMP R1, #1              @ compare the input argument to 1
+    CMP R1, #0              @ compare the input argument to 1
     MOVEQ R0, #1            @ set return value to 1 if equal
     POPEQ {PC}              @ restore stack pointer and return if equal
 
@@ -66,11 +52,25 @@ _count_partition:
     MOVEQ R0, #0            @ set return value to 0 if equal
     POPEQ {PC}              @ restore stack pointer and return if equal
 
-    PUSH {R1}               @ backup input argument value
-    SUB R1, R1, #1          @ decrement the input argument
-    BL _fact                @ compute fact(n-1)
-    POP {R1}                @ restore input argument
-    MUL R0, R0, R1          @ compute fact(n-1)*n
+
+    PUSH {R1}               @ backup n
+    PUSH {R2} 		    @ backup m
+    MOV  R0, R2 	    @ m into R0
+    MOV  R2, R1		    @ n into R2
+    SUB R1, R2, R0          @ decrement the input argument
+    MOV R2, R0              @ R0 into R2
+    BL _partition           @ make recursive call
+
+    
+    POP {R2}                @ restore input argument n
+    POP {R1}                @ restore input argument m
+    PUSH {R0}               @ push R0 to stack
+    SUB R2, R2, #1          @ subtract 1 from second argument
+    BL _partition           @ make recursive call
+
+    MOV R10, R0             @ move R0 to R10
+    POP {R0}                @ get R0 value
+    ADD R0, R0, R10         @ sum the two branches 
     POP  {PC}               @ restore the stack pointer and return
 
 .data
