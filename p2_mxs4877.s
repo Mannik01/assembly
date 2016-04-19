@@ -1,3 +1,7 @@
+/************************************
+                                    Author: Mandip Silwal
+                                    Program: Assembly program to count number of partitions
+                                                                                        **********************************/
 
     .global main
     .func main
